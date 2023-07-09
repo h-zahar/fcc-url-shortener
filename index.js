@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const dns = require("dns")
 const app = express();
 
 const mongoUri = process.env["DB_URI"]
@@ -60,7 +61,11 @@ app.get("/api/shorturl/:shorturl", (req, res) => {
 app.post("/api/shorturl", (req, res) => {
   try {
     const { url } = req.body;
-    new URL(url);
+    try {
+      dns.lookup(new URL(url));
+    } finally {
+      
+    }
     // createUrl = new Url({ originalUrl: url, shortUrl: 0 });
     // createUrl.save().then(data => res.json(data)).catch(err => res.json(err));
     // const checkUrl = new URL(url);
@@ -96,7 +101,7 @@ app.post("/api/shorturl", (req, res) => {
         res.json(err);
       });
   } catch (err) {
-    if (err.code === "ERR_INVALID_URL")
+    if (err.code === "ERR_INVALID_ARG_TYPE" || err.code === "ERR_INVALID_URL")
       return res.json({ error: "invalid url" });
     res.json(err);
   }
