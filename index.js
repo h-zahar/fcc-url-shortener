@@ -49,7 +49,7 @@ app.get("/api/shorturl/:shorturl", (req, res) => {
   Url.find({ shortUrl: Number(shorturl) })
     .then((data) => {
       if (data.length === 0) {
-        res.json({ error: "Not Found!" });
+        res.json({ error: "Not Added!" });
       } else {
         res.redirect(data[0].originalUrl);
       }
