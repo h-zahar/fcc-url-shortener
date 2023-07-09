@@ -58,19 +58,8 @@ app.get("/api/shorturl/:shorturl", (req, res) => {
     .catch((err) => res.json(err));
 });
 
-app.post("/api/shorturl", (req, res) => {
-  try {
-    const { url } = req.body;
-    try {
-      dns.lookup(new URL(url));
-    } finally {
-      
-    }
-    // createUrl = new Url({ originalUrl: url, shortUrl: 0 });
-    // createUrl.save().then(data => res.json(data)).catch(err => res.json(err));
-    // const checkUrl = new URL(url);
-
-    Url.find({ originalUrl: url })
+const continueFunc = (url, res) => {
+      Url.find({ originalUrl: url })
       .then((data) => {
         if (data.length === 0) {
           Url.find({})
@@ -95,12 +84,25 @@ app.post("/api/shorturl", (req, res) => {
             short_url: data[0].shortUrl,
           });
         }
-      })
-      .catch((err) => {
-        console.log(err);
-        res.json(err);
       });
+};
+
+app.post("/api/shorturl", async (req, res) => {
+  try {
+    const { url } = req.body;
+    
+    dns.lookup(new URL(url).hostname, (err, address, family) => {
+      if (err?.code === "ENOTFOUND") return res.json({ error: "invalid url" });
+
+      else continueFunc(url, res);
+    });
+    
+    // createUrl = new Url({ originalUrl: url, shortUrl: 0 });
+    // createUrl.save().then(data => res.json(data)).catch(err => res.json(err));
+    // const checkUrl = new URL(url);
+
   } catch (err) {
+    console.log(err)
     if (err.code === "ERR_INVALID_ARG_TYPE" || err.code === "ERR_INVALID_URL")
       return res.json({ error: "invalid url" });
     res.json(err);
