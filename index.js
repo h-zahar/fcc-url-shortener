@@ -60,6 +60,7 @@ app.get("/api/shorturl/:shorturl", (req, res) => {
 app.post("/api/shorturl", (req, res) => {
   try {
     const { url } = req.body;
+    new URL(url);
     // createUrl = new Url({ originalUrl: url, shortUrl: 0 });
     // createUrl.save().then(data => res.json(data)).catch(err => res.json(err));
     // const checkUrl = new URL(url);
